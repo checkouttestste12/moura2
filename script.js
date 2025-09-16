@@ -1,469 +1,477 @@
-// JavaScript para interatividade avançada
+// Dados dos produtos (simulação de API)
+const products = [
+    {
+        id: 1,
+        name: "Bateria Moura M60GD 12V 60Ah",
+        price: 299.90,
+        installments: "12x de R$ 24,99 sem juros",
+        image: "img/MJtDhi4YX1Oo.webp",
+        category: "automotiva",
+        amperage: 60,
+        popular: true
+    },
+    {
+        id: 2,
+        name: "Bateria Moura MA5-D 5Ah Moto",
+        price: 149.90,
+        installments: "6x de R$ 24,98 sem juros",
+        image: "img/ymERAiGjNqCK.jpg",
+        category: "moto",
+        amperage: 5,
+        popular: true
+    },
+    {
+        id: 3,
+        name: "Bateria Moura M150BD 150Ah Pesada",
+        price: 899.90,
+        installments: "12x de R$ 74,99 sem juros",
+        image: "img/QolTelpqWUHn.webp",
+        category: "pesada",
+        amperage: 150,
+        popular: false
+    },
+    {
+        id: 4,
+        name: "Bateria Moura 12MB105 105Ah Náutica",
+        price: 649.90,
+        installments: "12x de R$ 54,16 sem juros",
+        image: "img/GEZEIQOFMJRp.webp",
+        category: "nautica",
+        amperage: 105,
+        popular: false
+    },
+    {
+        id: 5,
+        name: "Bateria Moura M50ED 12V 50Ah",
+        price: 249.90,
+        installments: "10x de R$ 24,99 sem juros",
+        image: "img/k7AEyLPF3sEo.jpg",
+        category: "automotiva",
+        amperage: 50,
+        popular: true
+    },
+    {
+        id: 6,
+        name: "Bateria Moura MA8.6-E 8.6Ah Moto",
+        price: 189.90,
+        installments: "8x de R$ 23,74 sem juros",
+        image: "img/aYGKFN31I3PJ.jpg",
+        category: "moto",
+        amperage: 8.6,
+        popular: false
+    },
+    {
+        id: 7,
+        name: "Bateria Moura M75LD 12V 75Ah",
+        price: 349.90,
+        installments: "12x de R$ 29,16 sem juros",
+        image: "img/VwiA8LvfYxbQ.jpg",
+        category: "automotiva",
+        amperage: 75,
+        popular: true
+    },
+    {
+        id: 8,
+        name: "Bateria Moura 12MB220 220Ah Náutica",
+        price: 1299.90,
+        installments: "12x de R$ 108,33 sem juros",
+        image: "img/bS81PSsCxp49.webp",
+        category: "nautica",
+        amperage: 220,
+        popular: false
+    }
+];
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Intersection Observer para animações
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
+// Dados de veículos (simulação)
+const vehicleData = {
+    volkswagen: {
+        gol: ['2020', '2021', '2022', '2023', '2024'],
+        polo: ['2020', '2021', '2022', '2023', '2024'],
+        jetta: ['2020', '2021', '2022', '2023', '2024']
+    },
+    chevrolet: {
+        onix: ['2020', '2021', '2022', '2023', '2024'],
+        cruze: ['2020', '2021', '2022', '2023', '2024'],
+        tracker: ['2020', '2021', '2022', '2023', '2024']
+    },
+    ford: {
+        ka: ['2020', '2021', '2022', '2023', '2024'],
+        ecosport: ['2020', '2021', '2022', '2023', '2024'],
+        ranger: ['2020', '2021', '2022', '2023', '2024']
+    },
+    fiat: {
+        argo: ['2020', '2021', '2022', '2023', '2024'],
+        uno: ['2020', '2021', '2022', '2023', '2024'],
+        toro: ['2020', '2021', '2022', '2023', '2024']
+    },
+    toyota: {
+        corolla: ['2020', '2021', '2022', '2023', '2024'],
+        hilux: ['2020', '2021', '2022', '2023', '2024'],
+        etios: ['2020', '2021', '2022', '2023', '2024']
+    },
+    honda: {
+        civic: ['2020', '2021', '2022', '2023', '2024'],
+        fit: ['2020', '2021', '2022', '2023', '2024'],
+        hrv: ['2020', '2021', '2022', '2023', '2024']
+    },
+    hyundai: {
+        hb20: ['2020', '2021', '2022', '2023', '2024'],
+        creta: ['2020', '2021', '2022', '2023', '2024'],
+        tucson: ['2020', '2021', '2022', '2023', '2024']
+    },
+    nissan: {
+        march: ['2020', '2021', '2022', '2023', '2024'],
+        versa: ['2020', '2021', '2022', '2023', '2024'],
+        kicks: ['2020', '2021', '2022', '2023', '2024']
+    }
+};
 
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('animate-in');
-            }
-        });
-    }, observerOptions);
+// Estado da aplicação
+let currentProducts = [...products];
+let displayedProducts = [];
+let currentPage = 0;
+const productsPerPage = 6;
+let cartCount = 0;
 
-    // Observar elementos para animação
-    document.querySelectorAll('.product-card, .category-item, .benefit-item').forEach(el => {
-        observer.observe(el);
-    });
+// Elementos DOM
+const menuToggle = document.querySelector('.menu-toggle');
+const sidebarMenu = document.querySelector('.sidebar-menu');
+const closeMenu = document.querySelector('.close-menu');
+const productsGrid = document.getElementById('products-grid');
+const loading = document.getElementById('loading');
+const cartCountElement = document.querySelector('.cart-count');
 
-    // Menu Hambúrguer com animação
-    const hamburgerBtn = document.querySelector('.hamburger-menu');
-    const navLinks = document.querySelector('.nav-links');
-    let isMenuOpen = false;
+// Filtros
+const categoryFilter = document.getElementById('category-filter');
+const priceFilter = document.getElementById('price-filter');
+const sortFilter = document.getElementById('sort-filter');
 
-    hamburgerBtn.addEventListener('click', () => {
-        isMenuOpen = !isMenuOpen;
-        navLinks.classList.toggle('active');
-        
-        // Animação do ícone hambúrguer
-        if (isMenuOpen) {
-            hamburgerBtn.innerHTML = '✕';
-            hamburgerBtn.style.transform = 'rotate(180deg)';
-        } else {
-            hamburgerBtn.innerHTML = '☰';
-            hamburgerBtn.style.transform = 'rotate(0deg)';
+// Busca por veículo
+const brandSelect = document.getElementById('brand');
+const modelSelect = document.getElementById('model');
+const yearSelect = document.getElementById('year');
+const searchBtnForm = document.querySelector('.search-btn-form');
+
+// Depoimentos
+const testimonialCards = document.querySelectorAll('.testimonial-card');
+const navDots = document.querySelectorAll('.nav-dot');
+let currentTestimonial = 0;
+
+// Inicialização
+document.addEventListener('DOMContentLoaded', function() {
+    initializeApp();
+});
+
+function initializeApp() {
+    setupEventListeners();
+    loadInitialProducts();
+    setupInfiniteScroll();
+    setupTestimonialsSlider();
+    setupVehicleSearch();
+}
+
+function setupEventListeners() {
+    // Menu lateral
+    menuToggle.addEventListener('click', openSidebar);
+    closeMenu.addEventListener('click', closeSidebar);
+    
+    // Clique fora do menu para fechar
+    document.addEventListener('click', function(e) {
+        if (!sidebarMenu.contains(e.target) && !menuToggle.contains(e.target)) {
+            closeSidebar();
         }
     });
-
-    // Fechar menu ao clicar fora
-    document.addEventListener('click', (e) => {
-        if (!hamburgerBtn.contains(e.target) && !navLinks.contains(e.target) && isMenuOpen) {
-            navLinks.classList.remove('active');
-            hamburgerBtn.innerHTML = '☰';
-            hamburgerBtn.style.transform = 'rotate(0deg)';
-            isMenuOpen = false;
-        }
-    });
-
-    // Scroll suave para links internos
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
+    
+    // Filtros
+    categoryFilter.addEventListener('change', applyFilters);
+    priceFilter.addEventListener('change', applyFilters);
+    sortFilter.addEventListener('change', applyFilters);
+    
+    // Categorias
+    document.querySelectorAll('.category-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const category = this.dataset.category;
+            categoryFilter.value = category;
+            applyFilters();
+            document.getElementById('produtos').scrollIntoView({ behavior: 'smooth' });
         });
     });
-
-    // Carrinho de Compras com animações
-    const cartCount = document.querySelector('.cart-count');
-    let itemCount = 0;
-
-    function attachCartListeners() {
-        document.querySelectorAll('.add-to-cart-btn').forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.preventDefault();
-                
-                // Animação do botão
-                button.style.transform = 'scale(0.95)';
-                setTimeout(() => {
-                    button.style.transform = 'scale(1)';
-                }, 150);
-
-                itemCount++;
-                cartCount.textContent = itemCount;
-                
-                // Animação do contador
-                cartCount.style.animation = 'none';
-                setTimeout(() => {
-                    cartCount.style.animation = 'pulse 0.5s ease';
-                }, 10);
-
-                // Notificação toast
-                showToast('Item adicionado ao carrinho!', 'success');
-                
-                // Redirecionar após um delay
-                setTimeout(() => {
-                    window.location.href = e.target.href;
-                }, 1000);
+    
+    // CTA buttons
+    document.querySelector('.cta-btn').addEventListener('click', function() {
+        document.getElementById('produtos').scrollIntoView({ behavior: 'smooth' });
+    });
+    
+    // Localização
+    document.querySelector('.location-btn').addEventListener('click', function() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                alert('Funcionalidade de localização será implementada em breve!');
+            }, function() {
+                alert('Não foi possível acessar sua localização. Tente novamente.');
             });
-        });
-    }
-
-    // Sistema de notificações toast
-    function showToast(message, type = 'info') {
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
-        toast.textContent = message;
-        
-        toast.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: ${type === 'success' ? '#10b981' : '#3b82f6'};
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 10000;
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-        `;
-        
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-            toast.style.transform = 'translateX(0)';
-        }, 100);
-        
-        setTimeout(() => {
-            toast.style.transform = 'translateX(100%)';
-            setTimeout(() => {
-                document.body.removeChild(toast);
-            }, 300);
-        }, 3000);
-    }
-
-    // Filtros de categoria com animações
-    const categoryFilter = document.querySelector('.filter-category');
-    const sortBy = document.querySelector('.sort-by');
-    const searchIcon = document.querySelector('.search-icon');
-
-    // Busca avançada
-    let searchModal = null;
-
-    searchIcon.addEventListener('click', () => {
-        if (!searchModal) {
-            createSearchModal();
-        }
-        searchModal.style.display = 'flex';
-        setTimeout(() => {
-            searchModal.classList.add('active');
-        }, 10);
-    });
-
-    function createSearchModal() {
-        searchModal = document.createElement('div');
-        searchModal.className = 'search-modal';
-        searchModal.innerHTML = `
-            <div class="search-modal-content">
-                <div class="search-header">
-                    <h3>Buscar Baterias</h3>
-                    <button class="close-search">✕</button>
-                </div>
-                <div class="search-body">
-                    <input type="text" id="search-input" placeholder="Digite o nome da bateria ou modelo do veículo...">
-                    <div class="search-filters">
-                        <select id="search-category">
-                            <option value="">Todas as categorias</option>
-                            <option value="automotiva">Automotiva</option>
-                            <option value="moto">Moto</option>
-                            <option value="pesada">Pesada</option>
-                            <option value="nautica">Náutica</option>
-                        </select>
-                        <input type="range" id="price-range" min="100" max="1000" value="500">
-                        <span id="price-display">Até R$ 500</span>
-                    </div>
-                    <div class="search-results"></div>
-                </div>
-            </div>
-        `;
-
-        searchModal.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        `;
-
-        const modalContent = searchModal.querySelector('.search-modal-content');
-        modalContent.style.cssText = `
-            background: white;
-            border-radius: 12px;
-            padding: 30px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-        `;
-
-        document.body.appendChild(searchModal);
-
-        // Event listeners para o modal
-        searchModal.querySelector('.close-search').addEventListener('click', closeSearchModal);
-        searchModal.addEventListener('click', (e) => {
-            if (e.target === searchModal) closeSearchModal();
-        });
-
-        const searchInput = searchModal.querySelector('#search-input');
-        const priceRange = searchModal.querySelector('#price-range');
-        const priceDisplay = searchModal.querySelector('#price-display');
-
-        priceRange.addEventListener('input', (e) => {
-            priceDisplay.textContent = `Até R$ ${e.target.value}`;
-        });
-
-        searchInput.addEventListener('input', performSearch);
-    }
-
-    function closeSearchModal() {
-        searchModal.classList.remove('active');
-        setTimeout(() => {
-            searchModal.style.display = 'none';
-        }, 300);
-    }
-
-    // Adicionar classe active ao modal
-    searchModal && searchModal.classList.add('active') && (searchModal.style.opacity = '1') && 
-    (searchModal.querySelector('.search-modal-content').style.transform = 'scale(1)');
-
-    function performSearch() {
-        const searchTerm = searchModal.querySelector('#search-input').value.toLowerCase();
-        const searchResults = searchModal.querySelector('.search-results');
-        
-        if (searchTerm.length < 2) {
-            searchResults.innerHTML = '';
-            return;
-        }
-
-        // Simular busca (em um app real, seria uma chamada à API)
-        const mockResults = [
-            'Bateria Moura M60GD 12V 60Ah',
-            'Bateria Moura MA6-D 12V 6Ah',
-            'Bateria Moura M180BD 12V 180Ah'
-        ].filter(item => item.toLowerCase().includes(searchTerm));
-
-        searchResults.innerHTML = mockResults.map(result => 
-            `<div class="search-result-item">${result}</div>`
-        ).join('');
-    }
-
-    categoryFilter.addEventListener('change', () => {
-        filterProducts();
-        showToast(`Filtro aplicado: ${categoryFilter.options[categoryFilter.selectedIndex].text}`, 'info');
-    });
-
-    sortBy.addEventListener('change', () => {
-        sortProducts();
-        showToast(`Ordenação: ${sortBy.options[sortBy.selectedIndex].text}`, 'info');
-    });
-
-    function filterProducts() {
-        const selectedCategory = categoryFilter.value;
-        const productCards = document.querySelectorAll('.product-card');
-
-        productCards.forEach((card, index) => {
-            setTimeout(() => {
-                if (selectedCategory === 'all' || card.dataset.category === selectedCategory) {
-                    card.style.display = 'block';
-                    card.style.animation = 'fadeInUp 0.5s ease forwards';
-                } else {
-                    card.style.animation = 'fadeOut 0.3s ease forwards';
-                    setTimeout(() => {
-                        card.style.display = 'none';
-                    }, 300);
-                }
-            }, index * 50);
-        });
-    }
-
-    function sortProducts() {
-        const sortValue = sortBy.value;
-        const productGrid = document.querySelector('.product-grid');
-        const productCards = Array.from(document.querySelectorAll('.product-card'));
-
-        productCards.sort((a, b) => {
-            const priceA = parseFloat(a.querySelector('.price').textContent.replace('R$ ', '').replace(',', '.'));
-            const priceB = parseFloat(b.querySelector('.price').textContent.replace('R$ ', '').replace(',', '.'));
-
-            switch (sortValue) {
-                case 'preco-menor':
-                    return priceA - priceB;
-                case 'preco-maior':
-                    return priceB - priceA;
-                default:
-                    return 0;
-            }
-        });
-
-        // Animação de reordenação
-        productCards.forEach((card, index) => {
-            card.style.animation = 'fadeOut 0.2s ease forwards';
-            setTimeout(() => {
-                productGrid.appendChild(card);
-                card.style.animation = 'fadeInUp 0.4s ease forwards';
-            }, 200 + (index * 50));
-        });
-    }
-
-    // Função para carregar produtos (scroll infinito)
-    function loadProducts() {
-        const productGrid = document.querySelector('.product-grid');
-        const products = [
-            {
-                name: "Bateria Moura M60GD 12V 60Ah",
-                price: 289.90,
-                installment: 28.99,
-                image: "../img/bateria_carro.webp",
-                category: "automotiva"
-            },
-            {
-                name: "Bateria Moura MA6-D 12V 6Ah",
-                price: 159.90,
-                installment: 15.99,
-                image: "../img/bateria_moto.png",
-                category: "moto"
-            },
-            {
-                name: "Bateria Moura M180BD 12V 180Ah",
-                price: 899.90,
-                installment: 89.99,
-                image: "../img/bateria_caminhao.jpg",
-                category: "pesada"
-            },
-            {
-                name: "Bateria Moura 12MB105 12V 105Ah",
-                price: 649.90,
-                installment: 64.99,
-                image: "../img/bateria_nautica.webp",
-                category: "nautica"
-            },
-            {
-                name: "Bateria Moura M48FE 12V 48Ah",
-                price: 239.90,
-                installment: 23.99,
-                image: "../img/bateria_carro.webp",
-                category: "automotiva"
-            },
-            {
-                name: "Bateria Moura MA10-E 12V 10Ah",
-                price: 189.90,
-                installment: 18.99,
-                image: "../img/bateria_moto.png",
-                category: "moto"
-            }
-        ];
-
-        products.forEach(product => {
-            const productCard = `
-                <div class="product-card" data-category="${product.category}">
-                    <img src="${product.image}" alt="${product.name}">
-                    <h3>${product.name}</h3>
-                    <p class="price">R$ ${product.price.toFixed(2)}</p>
-                    <p class="installment">em até 10x de R$ ${product.installment.toFixed(2)}</p>
-                    <span class="guarantee">Garantia Moura inclusa</span>
-                    <a href="https://exemplo.com" class="add-to-cart-btn">Adicionar ao carrinho</a>
-                </div>
-            `;
-            productGrid.innerHTML += productCard;
-        });
-
-        // Reattach event listeners for new products
-        attachCartListeners();
-    }
-
-    loadProducts(); // Carregar produtos iniciais
-
-    // Placeholder para carrossel de ofertas
-    function loadOffers() {
-        const carousel = document.querySelector('.carousel');
-        for (let i = 0; i < 3; i++) {
-            const offerCard = `
-                <div class="offer-card">
-                    <img src="https://via.placeholder.com/200x150" alt="Oferta ${i+1}">
-                    <h3>Bateria em Oferta ${i+1}</h3>
-                    <p class="old-price">R$ ${(250 + i * 15).toFixed(2)}</p>
-                    <p class="new-price">R$ ${(200 + i * 10).toFixed(2)}</p>
-                    <a href="#" class="btn-primary">Ver Oferta</a>
-                </div>
-            `;
-            carousel.innerHTML += offerCard;
-        }
-    }
-    loadOffers();
-
-    // Placeholder para depoimentos
-    function loadTestimonials() {
-        const testimonialSlider = document.querySelector('.testimonial-slider');
-        const testimonialsData = [
-            { text: "Excelente bateria, durabilidade incrível! Recomendo a todos.", author: "João S." },
-            { text: "Atendimento e produto de primeira linha. Muito satisfeito com a Moura.", author: "Maria P." },
-            { text: "Nunca mais tive problemas com bateria depois que comecei a usar Moura.", author: "Carlos R." }
-        ];
-
-        testimonialsData.forEach(testimonial => {
-            const testimonialCard = `
-                <div class="testimonial-card">
-                    <p>"${testimonial.text}"</p>
-                    <p class="author">- ${testimonial.author}</p>
-                </div>
-            `;
-            testimonialSlider.innerHTML += testimonialCard;
-        });
-    }
-    loadTestimonials();
-
-    // Placeholder para busca por veículo
-    const brandSelect = document.getElementById('brand');
-    const modelSelect = document.getElementById('model');
-    const yearSelect = document.getElementById('year');
-    const searchForm = document.querySelector('.vehicle-search .search-form');
-    const compatibleBatteriesDiv = document.querySelector('.compatible-batteries');
-
-    // Popular marcas (exemplo)
-    const brands = ["Fiat", "Volkswagen", "Chevrolet"];
-    brands.forEach(brand => {
-        const option = document.createElement('option');
-        option.value = brand.toLowerCase();
-        option.textContent = brand;
-        brandSelect.appendChild(option);
-    });
-
-    // Lógica de busca (apenas exemplo)
-    searchForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const selectedBrand = brandSelect.value;
-        const selectedModel = modelSelect.value;
-        const selectedYear = yearSelect.value;
-
-        if (selectedBrand && selectedModel && selectedYear) {
-            compatibleBatteriesDiv.innerHTML = `<p>Baterias compatíveis para ${selectedBrand} ${selectedModel} ${selectedYear} serão exibidas aqui.</p>`;
         } else {
-            compatibleBatteriesDiv.innerHTML = `<p>Por favor, selecione Marca, Modelo e Ano.</p>`;
+            alert('Geolocalização não é suportada neste navegador.');
         }
     });
+}
 
-    // Placeholder para geolocalização (CTA secundária)
-    document.querySelector('.cta-secondary .btn-secondary').addEventListener('click', () => {
-        alert('Funcionalidade de geolocalização para encontrar lojas será implementada aqui.');
-        // Exemplo de uso da API de Geolocalização do navegador
-        // if (navigator.geolocation) {
-        //     navigator.geolocation.getCurrentPosition((position) => {
-        //         console.log(`Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`);
-        //         // Integrar com API de mapas para encontrar lojas próximas
-        //     });
-        // } else {
-        //     alert('Geolocalização não é suportada pelo seu navegador.');
-        // }
+function openSidebar() {
+    sidebarMenu.classList.add('active');
+}
+
+function closeSidebar() {
+    sidebarMenu.classList.remove('active');
+}
+
+function loadInitialProducts() {
+    displayedProducts = [];
+    currentPage = 0;
+    productsGrid.innerHTML = '';
+    loadMoreProducts();
+}
+
+function loadMoreProducts() {
+    const startIndex = currentPage * productsPerPage;
+    const endIndex = startIndex + productsPerPage;
+    const newProducts = currentProducts.slice(startIndex, endIndex);
+    
+    if (newProducts.length === 0) {
+        loading.style.display = 'none';
+        return;
+    }
+    
+    newProducts.forEach(product => {
+        displayedProducts.push(product);
+        const productCard = createProductCard(product);
+        productsGrid.appendChild(productCard);
+    });
+    
+    currentPage++;
+    
+    // Mostrar loading se ainda há produtos para carregar
+    if (endIndex < currentProducts.length) {
+        loading.style.display = 'block';
+    } else {
+        loading.style.display = 'none';
+    }
+}
+
+function createProductCard(product) {
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    card.innerHTML = `
+        <img src="${product.image}" alt="${product.name}" class="product-image" onerror="this.src='img/MJtDhi4YX1Oo.webp'">
+        <h3 class="product-name">${product.name}</h3>
+        <div class="product-price">R$ ${product.price.toFixed(2).replace('.', ',')}</div>
+        <div class="product-installments">${product.installments}</div>
+        <div class="warranty-badge">Garantia Moura inclusa</div>
+        <button class="add-to-cart" onclick="addToCart(${product.id})">Adicionar ao carrinho</button>
+    `;
+    return card;
+}
+
+function addToCart(productId) {
+    cartCount++;
+    cartCountElement.textContent = cartCount;
+    
+    // Simular redirecionamento para link específico
+    const product = products.find(p => p.id === productId);
+    if (product) {
+        // Aqui você pode redirecionar para o link específico
+        // window.location.href = `https://exemplo.com/produto/${productId}`;
+        alert(`${product.name} adicionado ao carrinho!`);
+    }
+}
+
+function applyFilters() {
+    const category = categoryFilter.value;
+    const priceRange = priceFilter.value;
+    const sortBy = sortFilter.value;
+    
+    // Filtrar produtos
+    currentProducts = products.filter(product => {
+        // Filtro por categoria
+        if (category && product.category !== category) {
+            return false;
+        }
+        
+        // Filtro por preço
+        if (priceRange) {
+            const [min, max] = priceRange.split('-').map(p => p.replace('+', ''));
+            const minPrice = parseInt(min);
+            const maxPrice = max ? parseInt(max) : Infinity;
+            
+            if (product.price < minPrice || product.price > maxPrice) {
+                return false;
+            }
+        }
+        
+        return true;
+    });
+    
+    // Ordenar produtos
+    switch (sortBy) {
+        case 'price-asc':
+            currentProducts.sort((a, b) => a.price - b.price);
+            break;
+        case 'price-desc':
+            currentProducts.sort((a, b) => b.price - a.price);
+            break;
+        case 'newest':
+            currentProducts.sort((a, b) => b.id - a.id);
+            break;
+        case 'popular':
+        default:
+            currentProducts.sort((a, b) => {
+                if (a.popular && !b.popular) return -1;
+                if (!a.popular && b.popular) return 1;
+                return 0;
+            });
+            break;
+    }
+    
+    loadInitialProducts();
+}
+
+function setupInfiniteScroll() {
+    window.addEventListener('scroll', function() {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 1000) {
+            if (loading.style.display !== 'none') {
+                loadMoreProducts();
+            }
+        }
+    });
+}
+
+function setupTestimonialsSlider() {
+    // Auto-play dos depoimentos
+    setInterval(nextTestimonial, 5000);
+    
+    // Navegação manual
+    navDots.forEach((dot, index) => {
+        dot.addEventListener('click', () => showTestimonial(index));
+    });
+}
+
+function showTestimonial(index) {
+    testimonialCards.forEach(card => card.classList.remove('active'));
+    navDots.forEach(dot => dot.classList.remove('active'));
+    
+    testimonialCards[index].classList.add('active');
+    navDots[index].classList.add('active');
+    
+    currentTestimonial = index;
+}
+
+function nextTestimonial() {
+    currentTestimonial = (currentTestimonial + 1) % testimonialCards.length;
+    showTestimonial(currentTestimonial);
+}
+
+function setupVehicleSearch() {
+    brandSelect.addEventListener('change', function() {
+        const selectedBrand = this.value;
+        
+        // Limpar e habilitar select de modelo
+        modelSelect.innerHTML = '<option value="">Selecione o modelo</option>';
+        modelSelect.disabled = !selectedBrand;
+        
+        // Limpar e desabilitar select de ano
+        yearSelect.innerHTML = '<option value="">Primeiro selecione o modelo</option>';
+        yearSelect.disabled = true;
+        
+        if (selectedBrand && vehicleData[selectedBrand]) {
+            Object.keys(vehicleData[selectedBrand]).forEach(model => {
+                const option = document.createElement('option');
+                option.value = model;
+                option.textContent = model.charAt(0).toUpperCase() + model.slice(1);
+                modelSelect.appendChild(option);
+            });
+        }
+    });
+    
+    modelSelect.addEventListener('change', function() {
+        const selectedBrand = brandSelect.value;
+        const selectedModel = this.value;
+        
+        // Limpar e habilitar select de ano
+        yearSelect.innerHTML = '<option value="">Selecione o ano</option>';
+        yearSelect.disabled = !selectedModel;
+        
+        if (selectedBrand && selectedModel && vehicleData[selectedBrand][selectedModel]) {
+            vehicleData[selectedBrand][selectedModel].forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelect.appendChild(option);
+            });
+        }
+    });
+    
+    searchBtnForm.addEventListener('click', function() {
+        const brand = brandSelect.value;
+        const model = modelSelect.value;
+        const year = yearSelect.value;
+        
+        if (brand && model && year) {
+            // Simular busca de bateria compatível
+            alert(`Buscando bateria compatível para ${brand.charAt(0).toUpperCase() + brand.slice(1)} ${model.charAt(0).toUpperCase() + model.slice(1)} ${year}...`);
+            
+            // Filtrar por categoria automotiva e redirecionar
+            categoryFilter.value = 'automotiva';
+            applyFilters();
+            document.getElementById('produtos').scrollIntoView({ behavior: 'smooth' });
+        } else {
+            alert('Por favor, selecione marca, modelo e ano do seu veículo.');
+        }
+    });
+}
+
+// Smooth scroll para links internos
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+        closeSidebar();
     });
 });
 
+// Animações ao scroll
+function animateOnScroll() {
+    const elements = document.querySelectorAll('.product-card, .category-card, .benefit-item');
+    
+    elements.forEach(element => {
+        const elementTop = element.getBoundingClientRect().top;
+        const elementVisible = 150;
+        
+        if (elementTop < window.innerHeight - elementVisible) {
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
+        }
+    });
+}
+
+// Inicializar animações
+window.addEventListener('scroll', animateOnScroll);
+
+// CSS para animações (adicionar via JavaScript)
+const style = document.createElement('style');
+style.textContent = `
+    .product-card, .category-card, .benefit-item {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+`;
+document.head.appendChild(style);
+
+// Executar animação inicial
+setTimeout(animateOnScroll, 100);
 
