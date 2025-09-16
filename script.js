@@ -1,11 +1,11 @@
-// Dados dos produtos (simulação de API)
+// Dados dos produtos (8 produtos para exibir em 4 linhas de 2)
 const products = [
     {
         id: 1,
         name: "Bateria Moura M60GD 12V 60Ah",
         price: 299.90,
         installments: "12x de R$ 24,99 sem juros",
-        image: "img/MJtDhi4YX1Oo.webp",
+        image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
         category: "automotiva",
         amperage: 60,
         popular: true
@@ -15,7 +15,7 @@ const products = [
         name: "Bateria Moura MA5-D 5Ah Moto",
         price: 149.90,
         installments: "6x de R$ 24,98 sem juros",
-        image: "img/ymERAiGjNqCK.jpg",
+        image: "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400&h=300&fit=crop",
         category: "moto",
         amperage: 5,
         popular: true
@@ -25,7 +25,7 @@ const products = [
         name: "Bateria Moura M150BD 150Ah Pesada",
         price: 899.90,
         installments: "12x de R$ 74,99 sem juros",
-        image: "img/QolTelpqWUHn.webp",
+        image: "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400&h=300&fit=crop",
         category: "pesada",
         amperage: 150,
         popular: false
@@ -35,7 +35,7 @@ const products = [
         name: "Bateria Moura 12MB105 105Ah Náutica",
         price: 649.90,
         installments: "12x de R$ 54,16 sem juros",
-        image: "img/GEZEIQOFMJRp.webp",
+        image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
         category: "nautica",
         amperage: 105,
         popular: false
@@ -45,7 +45,7 @@ const products = [
         name: "Bateria Moura M50ED 12V 50Ah",
         price: 249.90,
         installments: "10x de R$ 24,99 sem juros",
-        image: "img/k7AEyLPF3sEo.jpg",
+        image: "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400&h=300&fit=crop",
         category: "automotiva",
         amperage: 50,
         popular: true
@@ -55,7 +55,7 @@ const products = [
         name: "Bateria Moura MA8.6-E 8.6Ah Moto",
         price: 189.90,
         installments: "8x de R$ 23,74 sem juros",
-        image: "img/aYGKFN31I3PJ.jpg",
+        image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
         category: "moto",
         amperage: 8.6,
         popular: false
@@ -65,7 +65,7 @@ const products = [
         name: "Bateria Moura M75LD 12V 75Ah",
         price: 349.90,
         installments: "12x de R$ 29,16 sem juros",
-        image: "img/VwiA8LvfYxbQ.jpg",
+        image: "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400&h=300&fit=crop",
         category: "automotiva",
         amperage: 75,
         popular: true
@@ -75,7 +75,7 @@ const products = [
         name: "Bateria Moura 12MB220 220Ah Náutica",
         price: 1299.90,
         installments: "12x de R$ 108,33 sem juros",
-        image: "img/bS81PSsCxp49.webp",
+        image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop",
         category: "nautica",
         amperage: 220,
         popular: false
@@ -128,9 +128,6 @@ const vehicleData = {
 
 // Estado da aplicação
 let currentProducts = [...products];
-let displayedProducts = [];
-let currentPage = 0;
-const productsPerPage = 6;
 let cartCount = 0;
 
 // Elementos DOM
@@ -138,7 +135,6 @@ const menuToggle = document.querySelector('.menu-toggle');
 const sidebarMenu = document.querySelector('.sidebar-menu');
 const closeMenu = document.querySelector('.close-menu');
 const productsGrid = document.getElementById('products-grid');
-const loading = document.getElementById('loading');
 const cartCountElement = document.querySelector('.cart-count');
 
 // Filtros
@@ -152,11 +148,6 @@ const modelSelect = document.getElementById('model');
 const yearSelect = document.getElementById('year');
 const searchBtnForm = document.querySelector('.search-btn-form');
 
-// Depoimentos
-const testimonialCards = document.querySelectorAll('.testimonial-card');
-const navDots = document.querySelectorAll('.nav-dot');
-let currentTestimonial = 0;
-
 // Inicialização
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
@@ -164,9 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function initializeApp() {
     setupEventListeners();
-    loadInitialProducts();
-    setupInfiniteScroll();
-    setupTestimonialsSlider();
+    loadProducts();
     setupVehicleSearch();
 }
 
@@ -201,19 +190,6 @@ function setupEventListeners() {
     document.querySelector('.cta-btn').addEventListener('click', function() {
         document.getElementById('produtos').scrollIntoView({ behavior: 'smooth' });
     });
-    
-    // Localização
-    document.querySelector('.location-btn').addEventListener('click', function() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                alert('Funcionalidade de localização será implementada em breve!');
-            }, function() {
-                alert('Não foi possível acessar sua localização. Tente novamente.');
-            });
-        } else {
-            alert('Geolocalização não é suportada neste navegador.');
-        }
-    });
 }
 
 function openSidebar() {
@@ -224,44 +200,21 @@ function closeSidebar() {
     sidebarMenu.classList.remove('active');
 }
 
-function loadInitialProducts() {
-    displayedProducts = [];
-    currentPage = 0;
+function loadProducts() {
     productsGrid.innerHTML = '';
-    loadMoreProducts();
-}
-
-function loadMoreProducts() {
-    const startIndex = currentPage * productsPerPage;
-    const endIndex = startIndex + productsPerPage;
-    const newProducts = currentProducts.slice(startIndex, endIndex);
     
-    if (newProducts.length === 0) {
-        loading.style.display = 'none';
-        return;
-    }
-    
-    newProducts.forEach(product => {
-        displayedProducts.push(product);
+    // Exibir todos os 8 produtos de uma vez
+    currentProducts.forEach(product => {
         const productCard = createProductCard(product);
         productsGrid.appendChild(productCard);
     });
-    
-    currentPage++;
-    
-    // Mostrar loading se ainda há produtos para carregar
-    if (endIndex < currentProducts.length) {
-        loading.style.display = 'block';
-    } else {
-        loading.style.display = 'none';
-    }
 }
 
 function createProductCard(product) {
     const card = document.createElement('div');
     card.className = 'product-card';
     card.innerHTML = `
-        <img src="${product.image}" alt="${product.name}" class="product-image" onerror="this.src='img/MJtDhi4YX1Oo.webp'">
+        <img src="${product.image}" alt="${product.name}" class="product-image" onerror="this.src='https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400&h=300&fit=crop'">
         <h3 class="product-name">${product.name}</h3>
         <div class="product-price">R$ ${product.price.toFixed(2).replace('.', ',')}</div>
         <div class="product-installments">${product.installments}</div>
@@ -280,7 +233,26 @@ function addToCart(productId) {
     if (product) {
         // Aqui você pode redirecionar para o link específico
         // window.location.href = `https://exemplo.com/produto/${productId}`;
-        alert(`${product.name} adicionado ao carrinho!`);
+        
+        // Animação de feedback
+        const button = event.target;
+        const originalText = button.textContent;
+        button.textContent = 'Adicionado!';
+        button.style.background = '#10B981';
+        
+        setTimeout(() => {
+            button.textContent = originalText;
+            button.style.background = '';
+        }, 1500);
+        
+        // Animação do carrinho
+        cartCountElement.style.transform = 'scale(1.3)';
+        cartCountElement.style.background = '#10B981';
+        
+        setTimeout(() => {
+            cartCountElement.style.transform = 'scale(1)';
+            cartCountElement.style.background = '';
+        }, 300);
     }
 }
 
@@ -331,42 +303,7 @@ function applyFilters() {
             break;
     }
     
-    loadInitialProducts();
-}
-
-function setupInfiniteScroll() {
-    window.addEventListener('scroll', function() {
-        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 1000) {
-            if (loading.style.display !== 'none') {
-                loadMoreProducts();
-            }
-        }
-    });
-}
-
-function setupTestimonialsSlider() {
-    // Auto-play dos depoimentos
-    setInterval(nextTestimonial, 5000);
-    
-    // Navegação manual
-    navDots.forEach((dot, index) => {
-        dot.addEventListener('click', () => showTestimonial(index));
-    });
-}
-
-function showTestimonial(index) {
-    testimonialCards.forEach(card => card.classList.remove('active'));
-    navDots.forEach(dot => dot.classList.remove('active'));
-    
-    testimonialCards[index].classList.add('active');
-    navDots[index].classList.add('active');
-    
-    currentTestimonial = index;
-}
-
-function nextTestimonial() {
-    currentTestimonial = (currentTestimonial + 1) % testimonialCards.length;
-    showTestimonial(currentTestimonial);
+    loadProducts();
 }
 
 function setupVehicleSearch() {
@@ -474,4 +411,45 @@ document.head.appendChild(style);
 
 // Executar animação inicial
 setTimeout(animateOnScroll, 100);
+
+// Adicionar efeitos de hover melhorados
+document.addEventListener('DOMContentLoaded', function() {
+    // Efeito parallax suave no hero
+    window.addEventListener('scroll', function() {
+        const scrolled = window.pageYOffset;
+        const heroImage = document.querySelector('.hero-image img');
+        if (heroImage) {
+            heroImage.style.transform = `translateY(${scrolled * 0.1}px)`;
+        }
+    });
+    
+    // Contador animado para o carrinho
+    function animateCounter(element, target) {
+        let current = 0;
+        const increment = target / 20;
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                current = target;
+                clearInterval(timer);
+            }
+            element.textContent = Math.floor(current);
+        }, 50);
+    }
+    
+    // Lazy loading para imagens
+    const images = document.querySelectorAll('img[data-src]');
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                img.src = img.dataset.src;
+                img.classList.remove('lazy');
+                imageObserver.unobserve(img);
+            }
+        });
+    });
+    
+    images.forEach(img => imageObserver.observe(img));
+});
 
